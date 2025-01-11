@@ -1,0 +1,85 @@
+#Import data 記述統計
+d <- read.csv("asfr.csv") 
+d <- read.csv("age.csv") 
+
+# 必要なパッケージをインストール・読み込み
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("dplyr")) install.packages("dplyr")
+
+library(ggplot2)
+library(dplyr)
+
+
+# データの準備
+data <- data.frame(
+  Divorce_Count = rep(c("No Divorce", "1 Divorce", "2+ Divorces"), times = c(5, 5, 4)),
+  Age_Category = c("<24", "25-29", "30-34", "35-39", "40-47+",
+                   "<24", "25-29", "30-34", "35-39", "40-47+",
+                   "25-29", "30-34", "35-39", "40-47+"),
+  Mean_Birth_Interval = c(33.37, 41.55, 54.75, 65.66, 57.88,
+                          24, 40.8, 42.54, 55.03, 58.9,
+                          40.8, 46.66, 49.09, 28),
+  Sample_Size = c(105, 84, 64, 36, 17, 5, 30, 33, 29, 11, 5, 9, 11, 3)
+)
+
+library(dplyr)
+library(tidyr)
+library(purrr)
+
+# ブートストラップ関数
+bootstrap <- function(mean, n, iterations = 1000) {
+  resampled_means <- replicate(iterations, {
+    samples <- rnorm(n, mean = mean, sd = 5)  # 正規分布から再サンプリング
+    mean(samples)
+  })
+  data.frame(
+    Bootstrap_Mean = mean(resampled_means),
+    CI_Lower = quantile(resampled_means, 0.025),
+    CI_Upper = quantile(resampled_means, 0.975)
+  )
+}
+
+# データ準備
+data <- data.frame(
+  Divorce_Count = rep(c("No Divorce", "1 Divorce", "2+ Divorces"), times = c(5, 5, 4)),
+  Age_Category = c("<24", "25-29", "30-34", "35-39", "40-47+",
+                   "<24", "25-29", "30-34", "35-39", "40-47+",
+                   "25-29", "30-34", "35-39", "40-47+"),
+  Mean_Birth_Interval = c(33.37, 41.55, 54.75, 65.66, 57.88,
+                          24, 40.8, 42.54, 55.03, 58.9,
+                          40.8, 46.66, 49.09, 28),
+  Sample_Size = c(105, 84, 64, 36, 17, 5, 30, 33, 29, 11, 5, 9, 11, 3)
+)
+
+
+# ブートストラップ分析
+bootstrap_results <- data %>%
+  rowwise() %>%
+  mutate(
+    Bootstrap = list(bootstrap(Mean_Birth_Interval, Sample_Size))
+  ) %>%
+  unnest(cols = c(Bootstrap))  # リストを展開
+
+# 結果の確認
+print(bootstrap_results)
+
+
+# グラフの描画
+a <- "#1A6384FF";b <- "#F2EBBBFF";c <- "#C8102EFF"
+p <- ggplot(bootstrap_results, aes(x = Age_Category, y = Bootstrap_Mean, color = Divorce_Count)) +
+  geom_line(aes(group = Divorce_Count), size = 1.5) +  # ラインプロット
+  geom_point(size = 4, alpha = 0.7) +  # ポイントプロット
+  geom_errorbar(aes(ymin = CI_Lower, ymax = CI_Upper), width = 0.2) +  # エラーバー
+  scale_color_manual(values = c("No Divorce" = "#1A6384FF", "1 Divorce" = "#F2EBBBFF", "2+ Divorces" = "#C8102EFF")) +  # カラー指定
+  labs(
+    title = "Bootstrap Analysis of Mean Birth Intervals by Divorce Count and Age",
+    x = "Age Category",
+    y = "Mean Birth Interval (Months)",
+    color = "Divorce Count"
+  ) +
+  theme_minimal() +  # シンプルなテーマ
+  theme(
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    plot.title = element_text(hjust = 0.5, size = 14)
+  )
