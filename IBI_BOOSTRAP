@@ -1,3 +1,4 @@
+
 #Import data 記述統計
 d <- read.csv("asfr.csv") 
 d <- read.csv("age.csv") 
@@ -63,23 +64,37 @@ bootstrap_results <- data %>%
 # 結果の確認
 print(bootstrap_results)
 
+library(flextable)
+t <- tbl_summary(bootstrap_results)
+save_as_pptx(t,path = "t.pptx")
+save_as_docx(t,path = "t.docx")
 
-# グラフの描画
-a <- "#1A6384FF";b <- "#F2EBBBFF";c <- "#C8102EFF"
+a <-  "black"; b <- "grey70" ; c <- "#F66356FF"
+a <-  "#ECDA9AFF"; b <- "#F7945DFF" ; c <- "#F66356FF"
+"#ECDA9AFF", "#EFC47EFF", "#F3AD6AFF","#F7945DFF" ,"#F97B57FF" ,"#F66356FF" ,"#EE4D5AFF"
+
+# 変数の並び替え
+data$Divorce_Count  <- factor(data$Divorce_Count, levels=c("No Divorce","1 Divorce","2+ Divorces"))
+  
+  
 p <- ggplot(bootstrap_results, aes(x = Age_Category, y = Bootstrap_Mean, color = Divorce_Count)) +
-  geom_line(aes(group = Divorce_Count), size = 1.5) +  # ラインプロット
-  geom_point(size = 4, alpha = 0.7) +  # ポイントプロット
+  geom_line(aes(group = Divorce_Count), size = 0.7) +  # ラインプロット
+  geom_point(size = 3, alpha = 0.7) +  # ポイントプロット
   geom_errorbar(aes(ymin = CI_Lower, ymax = CI_Upper), width = 0.2) +  # エラーバー
-  scale_color_manual(values = c("No Divorce" = "#1A6384FF", "1 Divorce" = "#F2EBBBFF", "2+ Divorces" = "#C8102EFF")) +  # カラー指定
+  
+  scale_color_manual(values=c(a,b,c),
+              name="累積パートナー数",
+        breaks=c("No Divorce","1 Divorce","2+ Divorces"),
+        labels=c("0","1","2+")) +
+  
   labs(
-    title = "Bootstrap Analysis of Mean Birth Intervals by Divorce Count and Age",
-    x = "Age Category",
-    y = "Mean Birth Interval (Months)",
-    color = "Divorce Count"
-  ) +
-  theme_minimal() +  # シンプルなテーマ
+    title = "累積パートナー数と出産間隔の関係",
+    x = "年齢カテゴリー",
+    y = "平均出産間隔(months)",
+    color = "Divorce Count") +  # シンプルなテーマ
+   theme_minimal(base_family = "HiraKakuProN-W3")+
   theme(
     legend.title = element_text(size = 12),
     legend.text = element_text(size = 10),
-    plot.title = element_text(hjust = 0.5, size = 14)
-  )
+    plot.title = element_text(hjust = 0.5, size = 14))
+
