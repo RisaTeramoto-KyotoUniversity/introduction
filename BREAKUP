@@ -1,0 +1,161 @@
+# break up analysis
+```{r ,cache = TRUE, echo = TRUE,tidy=TRUE}
+
+
+nara yoshitomo color pallate
+a <-"#e5c563";b <-"#3b341e"; c<-"#802903"; d<-"#4d5213"; e<-"#d0bda9"
+
+
+#Import data 記述統計
+d <- read.csv("breakup.csv") 
+
+# 別れた理由の性差を分析する
+d1 <- subset(d, subset =d$who_initiate!= "-") # serial だけ
+
+# 並び替え
+d1$who_initiate <- factor(d1$who_initiate, levels=c("you","your partner","both","dead"))
+
+# 
+labeli_1 <- as_labeller(c("f" = "女性(n=76)",
+                         "m" = "男性(n=65)"))
+d1 <-   mutate(d1,order_c = case_when(no.mothers == 1 ~ "1",
+                                   no.mothers == 2 ~ "2",
+                                   no.mothers >= 3  ~ "3+"))
+d1$order_c <- factor(d1$order_c, levels=c("1","2","3+"))
+
+
+p <- ggplot(data = d1,aes(x = who_initiate)) + 
+  geom_bar(aes(fill =who_initiate),position = "dodge",size = 3, alpha = 0.9, boundary = 0)+
+  scale_x_discrete(label=c("you"="自分","your partner"="相手","both"="両者","dead"="死別"))+
+ # scale_y_continuous(breaks=seq(2,40,1))+
+  
+  scale_fill_manual(values=c(a,b,c,d),
+        name="誰が別れを切り出したか",
+       breaks =c("you", "your partner" , "both","dead"),
+        labels =c("自分", "相手" ,"両者","死別"))+
+  
+    facet_grid(~d1$sex) +
+  #facet_wrap(d1$order_c~d1$sex,labeller =labeli_1) +
+  theme_minimal(base_family = "HiraKakuProN-W3")+
+  theme(axis.title.y  = element_text(size = 12),
+        axis.text.y  = element_text(size = 10),
+        axis.title.x  = element_text(size = 12,face = "bold"),
+        
+        plot.title =element_text(size = 12),
+        legend.text  = element_text(size =12),#element_blank()
+        legend.title = element_text(size =12),    # legendのタイトルここで調節してください
+        legend.position="top",
+        strip.text  = element_text(size = 12,face="bold"),
+        axis.text.x = element_text(size = 11.3))+
+  xlab("")
+  guides(fill ="none") # 
+  
+p
+
+
+
+# 性別　X　別れを開始
+a <-"#e5c563";b <-"#3b341e"; c<-"#802903"; d<-"#4d5213"; e<-"#d0bda9"
+
+# 並び替え
+d1$breakup_sex <- factor(d1$breakup_sex, levels=c("female","male","both","dead"))
+d1 <-   mutate(d1,order_c = case_when(no.mothers == 1 ~ "1",
+                                   no.mothers == 2 ~ "2",
+                                   no.mothers >= 3  ~ "3+"))
+d1$order_c <- factor(d1$order_c, levels=c("1","2","3+"))
+
+
+# labeller作る
+#label_both, order_c = label_value
+
+labeli_1 <- as_labeller(c("f" = "女性(n=76)","m" = "男性(n=65)"))
+
+label_value <- as_labeller(c("1" = "1",
+                         "2" = "2",
+                        "3+" = "3以上"))
+
+p <- ggplot(data = d1,aes(x = breakup_sex)) + 
+  geom_bar(aes(fill =breakup_sex),position = "dodge",size = 3, alpha = 1, boundary = 0)+
+  scale_x_discrete(label=c("male"="男性","female"="女性","both"="両者","dead"="死別"))+
+ # scale_y_continuous(breaks=seq(2,40,1))+
+  
+  scale_fill_manual(values=c(a,b,c,d),
+        name="別れを切り出した性別",
+       breaks =c("female","male", "both","dead"),
+        labels =c("女性","男性","両者","死別"))+
+  
+  #facet_wrap(d1$sex~d1$order_c,ncol = 3,labeller =labeli_1) +
+  
+  #facet_wrap(~d1$sex,labeller =labeli_1) +
+  theme_minimal(base_family = "HiraKakuProN-W3")+
+  theme(axis.title.y  = element_text(size = 12),
+        axis.text.y  = element_text(size = 10),
+        axis.title.x  = element_text(size = 12,face = "bold"),
+        
+        plot.title =element_text(size = 12),
+        legend.text  = element_text(size =12),#element_blank()
+        legend.title = element_text(size =12),    # legendのタイトルここで調節してください
+        legend.position="top",
+        strip.text  = element_text(size = 12,face="bold"),
+        axis.text.x = element_text(size = 11.3))+
+  xlab("")
+  guides(fill ="none") # 
+  
+  
+  
+# 性別　X　別れた理由
+# 並び替え
+
+a <-"#3b341e";b <-"#802903";c <-"#876103";d <-"#b28e59";e <-"#7c1800";
+f <- "#484e18";g <-"#d0bda9"; h<-"#e5c563";i <-"#ca5d0a"; 
+j <-"#e9bd98";k <-"#948b60";l <-"#cbb07c";m <-"#e25b17";n <-"#a1af94";o <-"#cb6d50";p <-"#9b9d84"
+  
+d1$why.breakup..dead.or.not. <- factor(d1$why.breakup..dead.or.not, 
+                                       levels=c("cheating","just left/fadeout","misunderstand","dead",
+                                                "complicate","no supportive/parenting/irresponsible",
+                                                "no reason","conflict","distance","harassment/abusive",
+                                                
+                                                "no interest","family issue",
+                                              
+                                                "denied pregnant","no read","disagreement",
+                                                "other"))
+
+p <- ggplot(data = d1,aes(x=why.breakup..dead.or.not.))+ 
+  geom_bar(aes(fill =why.breakup..dead.or.not.),position = "dodge",size = 3, alpha = 1, boundary = 0)+
+  scale_x_discrete(label=c("cheating"="浮気",
+                           "just left/fadeout"="自然消滅",
+                           "misunderstand"="勘違い/誤解",
+                           "dead"="死別",
+                           "complicate"="複雑な理由",
+                           "no supportive/parenting/irresponsible"="頼りない",
+                           "no reason"="理由なし",
+                           "conflict"="コンフリクト",
+                           "distance"="遠距離",
+                           "harassment/abusive"="ハラスメント/暴力",
+                           "no interest"="興味がなくなった",
+                           "family issue"="家庭の事情",
+                           "denied pregnant"="妊娠を拒否",
+                           "disagreement"="行き違い",
+                           "other"="その他"))+
+ # scale_y_continuous(breaks=seq(2,40,1))+
+  
+  scale_fill_manual(values=c(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p))+
+  #      name="別れを切り出した性別",
+   #    breaks =c("female","male", "both","dead"),
+    #    labels =c("女性","男性","両者","死別"))+
+  theme_minimal(base_family = "HiraKakuProN-W3")+
+  theme(axis.title.y  = element_text(size = 12),
+        axis.text.y  = element_text(size = 10),
+        axis.title.x  = element_text(size = 10,face = "bold"),
+        
+        plot.title =element_text(size = 12),
+        legend.text  = element_text(size =12),#element_blank()
+        legend.title = element_text(size =12),    # legendのタイトルここで調節してください
+        legend.position="top",
+      
+        strip.text  = element_text(size = 12,face="bold"),
+        axis.text.x = element_text(size = 9,angle = 45, hjust = 1))+
+  xlab("")+
+ # facet_wrap(~d1$sex,labeller =labeli_1) +
+  #facet_wrap(~d1$who_initiate,labeller =labeli_1) +
+  guides(fill ="none") # 
