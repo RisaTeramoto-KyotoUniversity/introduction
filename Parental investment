@@ -1,3 +1,22 @@
+---
+title: "parenting"　　# 保存先
+author: "stayingti"
+date: "2025-11-26"
+output: html_document
+---
+＃　使用パッケージ
+```{r ,cache = TRUE,echo = TRUE,tidy=TRUE}
+library(rstan);library(brms);library(bayesplot);library(tidyverse);library(sjPlot);library(httr);
+library(tidybayes)
 
+library(cowplot);library(patchwork);library(StanHeaders);library(formatR);library(tidyr);library(ggplot2);library(performance);library(coxme);library(jstable);library(ggeffects);library(dplyr);library(survminer);library(janitor);library(devtools);#devtools::install_github('junkka/ehahelper')
+library(lemon);library(broom)
+# install.packages("pak")
+#conflict_prefer("slice", # the function
+# "dplyr") # the package
+# show_col(viridis_pal(option = "B", begin = .7, end = .9)(3)) with scale package
+#old.packages();#update.packages(ask = FALSE)
+
+```
 
 
