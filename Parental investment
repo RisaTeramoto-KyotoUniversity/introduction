@@ -60,9 +60,110 @@ Intercept     -2.59      0.50    -3.69    -1.72 1.00     3262     5057
 typeonly1      2.09      0.57     1.04     3.29 1.00     7101     6762　　　#　子供の実父がめっっちゃ殴る
 typesecond     0.45      0.46    -0.43     1.37 1.00    11921     8917
 
-Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
-and Tail_ESS are effective sample size measures, and Rhat is the potential
+Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS　and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
+
+
+# 変数は、typeだけで調べたところ、実父はめっちゃ子供殴るっぽい：交絡である同居してるかを確かめます
+# var 2 
+ d1nn <- subset(d1n, subset =live.together!="") # extract NA data
+ m2 <- brm(formula = n.hits.kids   ~  type + live.together + (1|ID)  ,
+  family = bernoulli(),
+  data = d1nn,
+  seed = 123,iter = 9000, warmup = 6000, chains = 4,thin = 1,
+  control = list(adapt_delta = 0.95),
+  prior = c(
+  prior(normal(0, 1.5), class = b),
+  prior(normal(0, 1.5), class = Intercept),
+  prior(exponential(1), class = sd)))  
+
+> m2
+ Family: bernoulli  Links: mu = logit 
+Formula: n.hits.kids ~ type + live.together + (1 | ID) 
+Data: d1nn (Number of observations: 229) 
+Draws: 4 chains, each with iter = 9000; warmup = 6000; thin = 1; total post-warmup draws = 12000
+
+Multilevel Hyperparameters:
+~ID (Number of levels: 121) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.39      0.70     0.13     2.84 1.00     1339     2079
+
+Regression Coefficients:
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -2.92      0.70    -4.48    -1.75 1.00     2488     5685
+typeonly1            2.12      0.63     0.94     3.41 1.00     8746     7725
+typesecond           0.34      0.49    -0.60     1.31 1.00    15225     9519
+live.togetheryes     0.27      0.56    -0.74     1.46 1.00     4949     6754　# 同居してるのはあまり関係ないっぽい
+
+Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS　and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+
+# var 3 age gapを入れると年齢差がデカすぎるので, まず変数age gapだけ入れます
+ 
+  d1 <- read.csv("long.csv") ;
+  d1n <- subset(d1, subset =n.hits.kids!="") # extract NA data
+  d1nn <- subset(d1, subset =age.gap!="")
+  
+ m3 <- brm(formula = n.hits.kids   ~   age.gap +  (1|ID)  ,
+  family = bernoulli(),
+  data = d1nn,
+  seed = 123,iter = 9000, warmup = 6000, chains = 4,thin = 1,
+  control = list(adapt_delta = 0.95),
+  prior = c(prior(normal(0, 1.5), class = b),prior(normal(0, 1.5), class = Intercept),
+  prior(exponential(1), class = sd))) 
+
+```　> m3　```
+Family: bernoulli 　Links: mu = logit 
+Formula: n.hits.kids ~ age.gap + (1 | ID) 
+Data: d1nn (Number of observations: 200) 
+Draws: 4 chains, each with iter = 9000; warmup = 6000; thin = 1;　total post-warmup draws = 12000
+
+Multilevel Hyperparameters: ~ID (Number of levels: 116) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.53      0.73     0.14     3.07 1.00     1527     1682
+
+Regression Coefficients:
+          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept    -1.78      0.43    -2.75    -1.05 1.00     4262     5860
+age.gap       0.00      0.05    -0.09     0.10 1.00    15353     8145　# 夫婦の年齢差は子供を殴る頻度に関係ないかも。
+
+Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS　and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 変数は１だけど、応答変数を三つのスケールで
+ mm1 <- brm(formula = n3.hits.kids   ~  type + (1|ID)  ,
+  family = gaussian(), #bernoulli(),
+  data = d1n,
+  seed = 123,iter = 9000, warmup = 6000, chains = 4,thin = 1,
+  control = list(adapt_delta = 0.95),
+  prior = c(
+  prior(normal(0, 1.5), class = b),
+  prior(normal(0, 1.5), class = Intercept),
+  prior(exponential(1), class = sd)))  
 
 
 
