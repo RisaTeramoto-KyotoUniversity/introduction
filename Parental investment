@@ -1,6 +1,6 @@
 ---
 title: "parenting"　　# 保存先
-author: "stayingti"
+author: "stayingti"　# Excelの名前は、「子育て分析2025」
 date: "2025-11-26"
 output: html_document
 ---
